@@ -19,7 +19,7 @@
 ## AI 生成声明
 
 本项目文档与部分代码在开发过程中使用了 AI 辅助生成与修改（包括但不限于方案草拟、代码补全、重构建议与文档整理）。
-所有 AI 产出内容均经过人工审查、调试与验证后再提交。
+所有 AI 产出内容均没有经过人工审查、调试与验证后再提交。
 
 核心代码位置：
 1. Python 虚拟平台服务端：[python-virtual-platform/server.py](python-virtual-platform/server.py)
