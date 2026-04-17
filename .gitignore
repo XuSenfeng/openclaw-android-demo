@@ -1,0 +1,9 @@
+# Keep this repository as a docs/integration meta repo.
+# Real source code lives in independent child repositories.
+openclaw/
+python-virtual-platform/
+android-client/
+
+# Workspace-local noise
+.DS_Store
+.vscode/

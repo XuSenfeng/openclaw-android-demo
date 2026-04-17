@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../websocket-connect/openclaw"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"typescript.reportStyleChecksAsWarnings": false,
+		"typescript.tsdk": "node_modules/typescript/lib",
+		"python-envs.defaultEnvManager": "ms-python.python:conda",
+		"python-envs.defaultPackageManager": "ms-python.python:conda"
+	}
+}

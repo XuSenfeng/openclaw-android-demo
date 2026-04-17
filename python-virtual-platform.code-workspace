@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../websocket-connect/python-virtual-platform"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../websocket-connect/openclaw"
+		}
+	],
+	"settings": {}
+}
