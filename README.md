@@ -125,19 +125,21 @@ pnpm openclaw plugins list --enabled
 ```bash
 cd openclaw
 pnpm openclaw config set channels.python-platform.wsUrl "ws://127.0.0.1:8765"
+pnpm openclaw config set channels.python-platform.serverId "demo-server-001"
 pnpm openclaw config set channels.python-platform.enabled true --strict-json
 pnpm openclaw config validate
 ```
 
 说明：
 1. `channels.python-platform.wsUrl` 配置优先级高于环境变量 `PYTHON_PLATFORM_WS_URL`。
-2. 若你不写配置，也可只用环境变量临时覆盖。
+2. `channels.python-platform.serverId` 必须与手机端注册的 `server_id` 一致。
+3. 若你不写配置，也可只用环境变量临时覆盖。
 
 #### E. 启动网关
 
 ```bash
 cd openclaw
-PYTHON_PLATFORM_WS_URL=ws://127.0.0.1:8765 pnpm openclaw gateway run --port 18888 --force --verbose
+PYTHON_PLATFORM_WS_URL=ws://127.0.0.1:8765 PYTHON_PLATFORM_SERVER_ID=demo-server-001 pnpm openclaw gateway run --port 18888 --force --verbose
 ```
 
 ### 3.3 启动命令行模拟客户端
@@ -145,10 +147,11 @@ PYTHON_PLATFORM_WS_URL=ws://127.0.0.1:8765 pnpm openclaw gateway run --port 1888
 ```bash
 cd python-virtual-platform
 source .venv/bin/activate
-python simulate.py
+PYTHON_PLATFORM_WS_URL=ws://127.0.0.1:8765 PYTHON_PLATFORM_SERVER_ID=demo-server-001 PYTHON_PLATFORM_USER_ID=user001 python simulate.py
 ```
 
-输入文本后，服务端会把消息广播给 OpenClaw 插件并返回 AI 结果。
+输入文本后，服务端会先检查“手机端 user_id + server_id”与 OpenClaw 的 server_id 是否匹配。
+只有配对成功后，消息才会被路由到对应 OpenClaw 实例并返回 AI 结果。
 
 ## 4. Android 手机端编译与安装
 
@@ -176,8 +179,11 @@ adb install -r android-client/app/build/outputs/apk/debug/app-debug.apk
 ### 4.3 手机连接地址怎么填
 
 1. 手机和电脑在同一局域网
-2. App 里的 WS 地址填电脑局域网 IP，比如：`ws://192.168.1.20:8765`
-3. 不要填 `127.0.0.1`（那会指向手机自身）
+2. App 设置页可配置 3 个字段：`WebSocket URL`、`Server ID`、`User ID`
+3. `WebSocket URL` 填电脑局域网 IP，比如：`ws://192.168.1.20:8765`
+4. `Server ID` 必须与 OpenClaw 插件侧 `channels.python-platform.serverId` 完全一致
+5. `User ID` 必须与服务端注册用户一致（默认可用 `user001`）
+6. 不要填 `127.0.0.1`（那会指向手机自身）
 
 ## 5. openclaw config / 插件配置常用命令
 
@@ -260,6 +266,21 @@ lsof -i :18888
 1. 模型 provider 未配置或凭据无效
 2. 配置文件有错误（先跑 `openclaw config validate`）
 3. 插件未启用（`plugins list --enabled` 查看）
+
+### 7.4 openclaw config 里看不到 serverId
+
+现象：进入 `Channels -> Python Platform -> Modify settings` 后，先出现 WebSocket URL 的配置方式选择。
+
+说明：`wsUrl` 是凭据项，`serverId` 是普通文本项；先完成 `wsUrl` 这一步后才会进入 `Server ID` 输入。
+
+若仍未出现，直接用命令行设置：
+
+```bash
+cd openclaw
+pnpm openclaw config set channels.python-platform.serverId "demo-server-001"
+pnpm openclaw config get channels.python-platform
+pnpm openclaw config validate
+```
 
 ## 8. 推荐启动顺序（避免踩坑）
 
