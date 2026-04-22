@@ -150,8 +150,13 @@ source .venv/bin/activate
 PYTHON_PLATFORM_WS_URL=ws://127.0.0.1:8765 PYTHON_PLATFORM_SERVER_ID=demo-server-001 PYTHON_PLATFORM_USER_ID=user001 python simulate.py
 ```
 
-输入文本后，服务端会先检查“手机端 user_id + server_id”与 OpenClaw 的 server_id 是否匹配。
-只有配对成功后，消息才会被路由到对应 OpenClaw 实例并返回 AI 结果。
+输入文本后，消息会经 Python 服务路由到已注册的 OpenClaw 实例并返回 AI 结果。
+
+若你是手机端联调，插件连接 Python 服务后会自动生成 6 位配对码（默认 120 秒有效），并持续自动刷新。
+可在网关日志里看到类似输出：
+```text
+[python-platform] Pair code generated: 123456 (expires: ...)
+```
 
 ## 4. Android 手机端编译与安装
 
@@ -176,14 +181,28 @@ cd android-client
 adb install -r android-client/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-### 4.3 手机连接地址怎么填
+### 4.3 首次一键配对（6 位验证码）
 
-1. 手机和电脑在同一局域网
-2. App 设置页可配置 3 个字段：`WebSocket URL`、`Server ID`、`User ID`
-3. `WebSocket URL` 填电脑局域网 IP，比如：`ws://192.168.1.20:8765`
-4. `Server ID` 必须与 OpenClaw 插件侧 `channels.python-platform.serverId` 完全一致
-5. `User ID` 必须与服务端注册用户一致（默认可用 `user001`）
-6. 不要填 `127.0.0.1`（那会指向手机自身）
+当前 Android 客户端默认流程：首次打开进入“一键配对”页面，不需要手填 `Server ID` / `User ID`。
+
+1. 手机和电脑在同一局域网。
+2. 先启动 `python server.py` 与 `openclaw gateway run`。
+3. 在 OpenClaw 网关日志中获取最新 6 位配对码（`Pair code generated: xxxxxx`）。
+4. 手机上点“一键配对”，输入 6 位配对码。
+5. App 会自动拿到并保存：`server_id`、`account_id`、`pair_token`、默认 `ws_url`。
+6. 后续重连自动完成，昵称仅用于展示，不参与路由匹配。
+
+注意：
+1. 配对码默认 120 秒有效，过期请使用日志里的最新配对码。
+2. 插件会自动刷新配对码（默认约每 90 秒刷新一次）。
+
+### 4.4 配对失败时如何处理
+
+若出现 `Pair code is invalid or expired`：
+1. 先确认使用的是日志中最新的 6 位配对码。
+2. 检查手机与电脑是否同一网段。
+3. 在配对页展开后可手动改 `WebSocket URL`（例如 `ws://192.168.1.20:8765`）。
+4. 不要填写 `127.0.0.1`（那会指向手机自身）。
 
 ## 5. openclaw config / 插件配置常用命令
 
